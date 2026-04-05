@@ -1,23 +1,50 @@
 import { useState } from 'react';
 import {
-  View,
   Text,
   TextInput,
   TouchableOpacity,
   StyleSheet,
   KeyboardAvoidingView,
   Platform,
+  Alert,
 } from 'react-native';
 import { useRouter } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function SignInScreen() {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleSignIn = () => {
-    // API integration will be added in week 4
-    console.log('Sign in:', email, password);
+  const handleSignIn = async () => {
+    if (!email || !password) {
+      Alert.alert('Error', 'All fields are required');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const response = await fetch('http://localhost:3000/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        await AsyncStorage.setItem('userName', data.user.name);
+        await AsyncStorage.setItem('userId', String(data.user.id));
+        router.replace('/(tabs)');
+      } else {
+        Alert.alert('Error', data.error || 'Something went wrong');
+      }
+    } catch (err) {
+      Alert.alert('Error', 'Could not connect to server');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -46,8 +73,8 @@ export default function SignInScreen() {
         secureTextEntry
       />
 
-      <TouchableOpacity style={styles.button} onPress={handleSignIn}>
-        <Text style={styles.buttonText}>Sign In</Text>
+      <TouchableOpacity style={styles.button} onPress={handleSignIn} disabled={loading}>
+        <Text style={styles.buttonText}>{loading ? 'Signing in...' : 'Sign In'}</Text>
       </TouchableOpacity>
 
       <TouchableOpacity onPress={() => router.push('/(auth)/sign-up')}>
