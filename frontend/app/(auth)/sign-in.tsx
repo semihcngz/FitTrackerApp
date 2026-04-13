@@ -34,6 +34,7 @@ export default function SignInScreen() {
       const data = await response.json();
 
       if (response.ok) {
+        await AsyncStorage.setItem('token', data.token);
         await AsyncStorage.setItem('userName', data.user.name);
         await AsyncStorage.setItem('userId', String(data.user.id));
         router.replace('/(tabs)');
