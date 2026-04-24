@@ -1,8 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
+import { useRouter, useFocusEffect } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+
+const API_URL = 'http://localhost:3000';
 
 const today = new Date().toLocaleDateString('en-US', {
   weekday: 'long',
@@ -14,21 +16,44 @@ const today = new Date().toLocaleDateString('en-US', {
 export default function HomeScreen() {
   const router = useRouter();
   const [userName, setUserName] = useState('');
+  const [userId, setUserId] = useState<string | null>(null);
 
-  const waterIntake = 0;
-  const waterGoal = 8;
+  const [waterIntake, setWaterIntake] = useState(0);
+  const [waterGoal, setWaterGoal] = useState(8);
   const steps = 0;
   const stepsGoal = 10000;
   const kcalBurned = 0;
-  const overallProgress = 0;
 
   useEffect(() => {
     const loadUser = async () => {
       const name = await AsyncStorage.getItem('userName');
+      const id = await AsyncStorage.getItem('userId');
       if (name) setUserName(name);
+      if (id) setUserId(id);
     };
     loadUser();
   }, []);
+
+  // Refresh data every time home tab is focused
+  useFocusEffect(
+    useCallback(() => {
+      const fetchWater = async () => {
+        const id = await AsyncStorage.getItem('userId');
+        if (!id) return;
+        try {
+          const response = await fetch(`${API_URL}/water/${id}`);
+          const data = await response.json();
+          setWaterIntake(data.glasses);
+          setWaterGoal(data.goal);
+        } catch (err) {
+          console.error('Fetch water error:', err);
+        }
+      };
+      fetchWater();
+    }, [])
+  );
+
+  const overallProgress = Math.round((waterIntake / waterGoal) * 100);
 
   const handleLogout = async () => {
     await AsyncStorage.clear();
