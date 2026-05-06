@@ -38,7 +38,7 @@ export default function SignUpScreen() {
       } else {
         Alert.alert('Error', data.error || 'Something went wrong');
       }
-    } catch (err) {
+    } catch {
       Alert.alert('Error', 'Could not connect to server');
     } finally {
       setLoading(false);

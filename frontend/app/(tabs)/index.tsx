@@ -16,20 +16,17 @@ const today = new Date().toLocaleDateString('en-US', {
 export default function HomeScreen() {
   const router = useRouter();
   const [userName, setUserName] = useState('');
-  const [userId, setUserId] = useState<string | null>(null);
 
   const [waterIntake, setWaterIntake] = useState(0);
   const [waterGoal, setWaterGoal] = useState(8);
-  const steps = 0;
-  const stepsGoal = 10000;
+  const [steps, setSteps] = useState(0);
+  const [stepsGoal, setStepsGoal] = useState(10000);
   const kcalBurned = 0;
 
   useEffect(() => {
     const loadUser = async () => {
       const name = await AsyncStorage.getItem('userName');
-      const id = await AsyncStorage.getItem('userId');
       if (name) setUserName(name);
-      if (id) setUserId(id);
     };
     loadUser();
   }, []);
@@ -37,23 +34,34 @@ export default function HomeScreen() {
   // Refresh data every time home tab is focused
   useFocusEffect(
     useCallback(() => {
-      const fetchWater = async () => {
+      const fetchDashboardData = async () => {
         const id = await AsyncStorage.getItem('userId');
         if (!id) return;
         try {
-          const response = await fetch(`${API_URL}/water/${id}`);
-          const data = await response.json();
-          setWaterIntake(data.glasses);
-          setWaterGoal(data.goal);
+          const [waterResponse, stepsResponse] = await Promise.all([
+            fetch(`${API_URL}/water/${id}`),
+            fetch(`${API_URL}/steps/${id}`),
+          ]);
+
+          const waterData = await waterResponse.json();
+          const stepsData = await stepsResponse.json();
+
+          setWaterIntake(waterData.glasses ?? 0);
+          setWaterGoal(waterData.goal ?? 8);
+          setSteps(stepsData.step_count ?? 0);
+          setStepsGoal(stepsData.goal ?? 10000);
         } catch (err) {
-          console.error('Fetch water error:', err);
+          console.error('Fetch dashboard data error:', err);
         }
       };
-      fetchWater();
+
+      fetchDashboardData();
     }, [])
   );
 
-  const overallProgress = Math.round((waterIntake / waterGoal) * 100);
+  const waterProgress = waterGoal > 0 ? Math.min((waterIntake / waterGoal) * 100, 100) : 0;
+  const stepsProgress = stepsGoal > 0 ? Math.min((steps / stepsGoal) * 100, 100) : 0;
+  const overallProgress = Math.round((waterProgress + stepsProgress) / 2);
 
   const handleLogout = async () => {
     await AsyncStorage.clear();
@@ -93,17 +101,17 @@ export default function HomeScreen() {
           <Text style={styles.cardValue}>{waterIntake}</Text>
           <Text style={styles.cardSubtitle}>/ {waterGoal} glasses</Text>
           <View style={styles.progressBarBg}>
-            <View style={[styles.progressBarFill, { width: `${(waterIntake / waterGoal) * 100}%` }]} />
+            <View style={[styles.progressBarFill, { width: `${waterProgress}%` }]} />
           </View>
         </View>
 
         {/* Steps */}
         <View style={styles.card}>
           <Text style={styles.cardTitle}>Steps🏅</Text>
-          <Text style={styles.cardValue}>{steps}</Text>
-          <Text style={styles.cardSubtitle}>/ {stepsGoal}</Text>
+          <Text style={styles.cardValue}>{steps.toLocaleString()}</Text>
+          <Text style={styles.cardSubtitle}>/ {stepsGoal.toLocaleString()}</Text>
           <View style={styles.progressBarBg}>
-            <View style={[styles.progressBarFill, { width: `${(steps / stepsGoal) * 100}%` }]} />
+            <View style={[styles.progressBarFill, { width: `${stepsProgress}%` }]} />
           </View>
         </View>
 
@@ -119,9 +127,9 @@ export default function HomeScreen() {
 
       </View>
 
-      {/* Today's Summary */}
+      {/* Today&apos;s Summary */}
       <View style={styles.summaryCard}>
-        <Text style={styles.summaryTitle}>Today's Summary</Text>
+        <Text style={styles.summaryTitle}>Today&apos;s Summary</Text>
         <Text style={styles.summarySubtitle}>Your progress at a glance</Text>
         <View style={styles.summaryRow}>
           <Ionicons name="radio-button-on" size={18} color="#7B7FE8" />

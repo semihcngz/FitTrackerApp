@@ -7,3 +7,5 @@
 4.Hafta => https://www.youtube.com/watch?v=4Q69JZB52CU
 
 5.Hafta => https://www.youtube.com/watch?v=yLou34MZ_U4
+
+6.Hafta => https://www.youtube.com/watch?v=ZId-W0uAdQQ

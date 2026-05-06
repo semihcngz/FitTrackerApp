@@ -50,7 +50,7 @@ export default function WaterScreen() {
   };
 
   const handleAdd = async () => {
-    if (glasses + 1 == goal) {
+    if (glasses + 1 === goal) {
       Alert.alert('', 'You have reached your daily goal!');
     }
     const newGlasses = glasses + 1;
@@ -68,7 +68,7 @@ export default function WaterScreen() {
   const handleGoalChange = async (change: number) => {
     
     const newGoal = goal + change;
-    if(newGoal == 25)
+    if (newGoal === 25)
     {
         Alert.alert("That's too much water, dont you think :)")
         return;
