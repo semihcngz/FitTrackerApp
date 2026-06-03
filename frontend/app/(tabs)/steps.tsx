@@ -109,7 +109,6 @@ export default function StepsScreen() {
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <Text style={styles.title}>Step Tracker</Text>
-      <Text style={styles.subtitle}>Track your daily walking progress</Text>
 
       <View style={styles.progressCard}>
         <View style={styles.progressHeader}>
@@ -137,9 +136,7 @@ export default function StepsScreen() {
 
       <View style={styles.manualCard}>
         <Text style={styles.cardTitle}>Add Steps</Text>
-        <Text style={styles.cardSubtitle}>
-          Enter the steps you just walked and add them to today&apos;s total
-        </Text>
+
 
         <TextInput
           style={styles.input}

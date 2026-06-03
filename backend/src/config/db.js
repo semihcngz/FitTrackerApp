@@ -18,4 +18,10 @@ pool.connect((err, client, release) => {
   }
 });
 
+// Run SET timezone on every new connection so DATE() comparisons
+// always reflect local time (Europe/Istanbul = UTC+3)
+pool.on('connect', (client) => {
+  client.query("SET timezone = 'Europe/Istanbul'");
+});
+
 module.exports = pool;

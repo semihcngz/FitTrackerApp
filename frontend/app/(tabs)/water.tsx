@@ -84,8 +84,7 @@ export default function WaterScreen() {
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
 
       {/* Header */}
-      <Text style={styles.title}>Water Intake 💧</Text>
-      <Text style={styles.subtitle}>Track your daily hydration</Text>
+      <Text style={styles.title}>Water Intake</Text>
 
       {/* Progress Circle Area */}
       <View style={styles.progressCard}>

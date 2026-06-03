@@ -11,3 +11,5 @@
 6.Hafta => https://www.youtube.com/watch?v=ZId-W0uAdQQ
 
 7.Hafta => https://www.youtube.com/watch?v=-n0rRyrBJBY
+
+8.Hafta => https://www.youtube.com/watch?v=6II75yrsEN0

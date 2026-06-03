@@ -13,6 +13,15 @@ const today = new Date().toLocaleDateString('en-US', {
   day: 'numeric',
 });
 
+const getLocalDateStr = () => {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
+
+  return `${year}-${month}-${day}`;
+};
+
 export default function HomeScreen() {
   const router = useRouter();
   const [userName, setUserName] = useState('');
@@ -39,10 +48,11 @@ export default function HomeScreen() {
         const id = await AsyncStorage.getItem('userId');
         if (!id) return;
         try {
+          const date = getLocalDateStr();
           const [waterResponse, stepsResponse, exerciseResponse] = await Promise.all([
             fetch(`${API_URL}/water/${id}`),
             fetch(`${API_URL}/steps/${id}`),
-            fetch(`${API_URL}/exercise/${id}`),
+            fetch(`${API_URL}/exercise/${id}?date=${date}`),
           ]);
 
           const waterData = await waterResponse.json();
@@ -151,32 +161,22 @@ export default function HomeScreen() {
         {/* Water Intake */}
         <View style={styles.card}>
           <Text style={styles.cardTitle}>Water{'\n'}Intake</Text>
-          <Text style={styles.cardEmoji}>💧</Text>
           <Text style={styles.cardValue}>{waterIntake}</Text>
           <Text style={styles.cardSubtitle}>/ {waterGoal} glasses</Text>
-          <View style={styles.progressBarBg}>
-            <View style={[styles.progressBarFill, { width: `${waterProgress}%` }]} />
-          </View>
         </View>
 
         {/* Steps */}
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>Steps🏅</Text>
+          <Text style={styles.cardTitle}>Steps</Text>
           <Text style={styles.cardValue}>{steps.toLocaleString()}</Text>
           <Text style={styles.cardSubtitle}>/ {stepsGoal.toLocaleString()}</Text>
-          <View style={styles.progressBarBg}>
-            <View style={[styles.progressBarFill, { width: `${stepsProgress}%` }]} />
-          </View>
         </View>
 
         {/* Exercise */}
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>Exercise{'\n'}🥇</Text>
+          <Text style={styles.cardTitle}>Exercise</Text>
           <Text style={styles.cardValue}>{kcalBurned}</Text>
           <Text style={styles.cardSubtitle}>{exerciseMinutes} min{'\n'}active</Text>
-          <View style={styles.progressBarBg}>
-            <View style={[styles.progressBarFill, { width: `${exerciseProgress}%` }]} />
-          </View>
         </View>
 
       </View>

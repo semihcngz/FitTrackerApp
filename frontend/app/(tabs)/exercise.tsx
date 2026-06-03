@@ -10,9 +10,18 @@ import {
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
-import { useFocusEffect } from 'expo-router';
+import { useFocusEffect, useRouter } from 'expo-router';
 
 const API_URL = 'http://localhost:3000';
+
+//telefonun local tarihi
+const getLocalDateStr = () => {
+  const now = new Date();
+  const y = now.getFullYear();
+  const m = String(now.getMonth() + 1).padStart(2, '0');
+  const d = String(now.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+};
 
 const EXERCISE_OPTIONS = [
   { type: 'Cardio', activity: 'Running', icon: 'walk', color: '#FF8A65' },
@@ -60,6 +69,7 @@ interface Exercise {
 }
 
 export default function ExerciseScreen() {
+  const router = useRouter();
   const [userId, setUserId] = useState<string | null>(null);
   const [selectedExercise, setSelectedExercise] = useState<ExerciseOption>(EXERCISE_OPTIONS[0]);
   const [isExerciseListOpen, setIsExerciseListOpen] = useState(false);
@@ -86,7 +96,8 @@ export default function ExerciseScreen() {
 
   const fetchExercises = async (id: string) => {
     try {
-      const res = await fetch(`${API_URL}/exercise/${id}`);
+      const date = getLocalDateStr();
+      const res = await fetch(`${API_URL}/exercise/${id}?date=${date}`);
       const data = await res.json();
       setExercises(data.exercises ?? []);
       setTotalCalories(data.total_calories ?? 0);
@@ -111,7 +122,8 @@ export default function ExerciseScreen() {
     }
 
     try {
-      await fetch(`${API_URL}/exercise/add`, {
+      const localDate = getLocalDateStr();
+      const response = await fetch(`${API_URL}/exercise/add`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -120,8 +132,14 @@ export default function ExerciseScreen() {
           activity: selectedExercise.activity,
           duration_minutes: parsedDuration,
           calories_burned: parsedCalories,
+          local_date: localDate, //telefon tarihi
         }),
       });
+
+      if (!response.ok) {
+        throw new Error('Exercise could not be saved');
+      }
+
       setDuration('');
       setCalories('');
       setIsExerciseListOpen(false);
@@ -156,9 +174,17 @@ export default function ExerciseScreen() {
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-
-      <Text style={styles.title}>Exercise Tracker 🏋️</Text>
-      <Text style={styles.subtitle}>Log your workouts and track progress</Text>
+      <View style={styles.pageHeader}>
+        <View style={styles.pageHeaderText}>
+          <Text style={styles.title}>Exercise Tracker</Text>
+        </View>
+        <TouchableOpacity
+          style={styles.weeklyButton}
+          onPress={() => router.push('/exercise-weekly')}
+        >
+          <Ionicons name="bar-chart-outline" size={20} color="#fff" />
+        </TouchableOpacity>
+      </View>
 
       {/* Stats Row */}
       <View style={styles.statsRow}>
@@ -339,15 +365,28 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
     gap: 20,
   },
+  pageHeader: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
+    gap: 12,
+  },
+  pageHeaderText: {
+    flex: 1,
+  },
   title: {
     color: '#fff',
     fontSize: 24,
     fontWeight: '700',
   },
-  subtitle: {
-    color: '#666',
-    fontSize: 14,
-    marginTop: -12,
+  weeklyButton: {
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    backgroundColor: '#1e1e1e',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 2,
   },
   statsRow: {
     flexDirection: 'row',
