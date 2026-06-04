@@ -67,4 +67,87 @@ const login = async (req, res) => {
   }
 };
 
-module.exports = { register, login };
+const normalizeOptionalNumber = (value) => {
+  if (value === undefined || value === null || value === '') {
+    return null;
+  }
+
+  const parsedValue = Number(String(value).replace(',', '.'));
+  return Number.isFinite(parsedValue) ? parsedValue : null;
+};
+
+const mapProfileRow = (user) => ({
+  id: user.id,
+  name: user.name,
+  email: user.email,
+  age: user.age,
+  gender: user.gender,
+  height: user.height,
+  currentWeight: user.current_weight,
+  targetWeight: user.target_weight,
+  activityLevel: user.activity_level,
+});
+
+const getProfile = async (req, res) => {
+  const { userId } = req.params;
+
+  try {
+    const result = await pool.query(
+      `SELECT id, name, email, age, gender, height, current_weight, target_weight, activity_level
+       FROM users
+       WHERE id = $1`,
+      [userId]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    res.status(200).json({ profile: mapProfileRow(result.rows[0]) });
+  } catch (err) {
+    console.error('Get profile error:', err.message);
+    res.status(500).json({ error: 'Server error' });
+  }
+};
+
+const updateProfile = async (req, res) => {
+  const { userId } = req.params;
+  const { age, gender, height, currentWeight, targetWeight, activityLevel } = req.body;
+
+  try {
+    const result = await pool.query(
+      `UPDATE users
+       SET age = $1,
+           gender = $2,
+           height = $3,
+           current_weight = $4,
+           target_weight = $5,
+           activity_level = $6
+       WHERE id = $7
+       RETURNING id, name, email, age, gender, height, current_weight, target_weight, activity_level`,
+      [
+        normalizeOptionalNumber(age),
+        gender || null,
+        normalizeOptionalNumber(height),
+        normalizeOptionalNumber(currentWeight),
+        normalizeOptionalNumber(targetWeight),
+        activityLevel || null,
+        userId,
+      ]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    res.status(200).json({
+      message: 'Profile updated successfully',
+      profile: mapProfileRow(result.rows[0]),
+    });
+  } catch (err) {
+    console.error('Update profile error:', err.message);
+    res.status(500).json({ error: 'Server error' });
+  }
+};
+
+module.exports = { register, login, getProfile, updateProfile };

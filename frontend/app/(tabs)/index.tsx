@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useRouter, useFocusEffect } from 'expo-router';
+import { type Href, useRouter, useFocusEffect } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const API_URL = 'http://localhost:3000';
@@ -74,11 +74,6 @@ export default function HomeScreen() {
     }, [])
   );
 
-  const waterProgress = waterGoal > 0 ? Math.min((waterIntake / waterGoal) * 100, 100) : 0;
-  const stepsProgress = stepsGoal > 0 ? Math.min((steps / stepsGoal) * 100, 100) : 0;
-  const exerciseProgress =
-    exerciseMinutes > 0 ? Math.min((exerciseMinutes / 60) * 100, 100) : 0;
-
   const waterTip =
     waterIntake === 0
       ? 'You have not logged any water yet. Drinking a glass now is a good start.'
@@ -143,7 +138,7 @@ export default function HomeScreen() {
           <Text style={styles.dateText}>{today}</Text>
         </View>
         <View style={styles.headerIcons}>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={() => router.push('/profile' as Href)}>
             <Ionicons name="person-outline" size={24} color="#fff" />
           </TouchableOpacity>
           <TouchableOpacity>

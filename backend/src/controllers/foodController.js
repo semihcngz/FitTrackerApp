@@ -1,5 +1,5 @@
 const OPENAI_CHAT_URL = 'https://api.openai.com/v1/chat/completions';
-const DEFAULT_MODEL = 'gpt-5-nano';
+const DEFAULT_MODEL = 'gpt-5.4-mini';
 
 const clampMacro = (value) => {
   const number = Number(value);
@@ -54,7 +54,7 @@ const analyzeFoodPhoto = async (req, res) => {
             content: [
               {
                 type: 'text',
-                text: 'Estimate the nutrition of this food photo for a learning app. Return one meal estimate with realistic values. If uncertain, infer a common serving size.',
+                text: 'Estimate the nutrition of this food photo. Return one meal estimate with realistic values. If uncertain, infer a common serving size.',
               },
               {
                 type: 'image_url',

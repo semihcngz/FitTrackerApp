@@ -36,6 +36,7 @@ export default function SignInScreen() {
       if (response.ok) {
         await AsyncStorage.setItem('token', data.token);
         await AsyncStorage.setItem('userName', data.user.name);
+        await AsyncStorage.setItem('userEmail', data.user.email);
         await AsyncStorage.setItem('userId', String(data.user.id));
         router.replace('/(tabs)');
       } else {

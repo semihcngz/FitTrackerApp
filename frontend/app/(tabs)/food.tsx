@@ -172,10 +172,6 @@ export default function FoodScreen() {
           <Text style={styles.title}>Food Tracker</Text>
           <Text style={styles.subtitle}>AI supported calorie estimate</Text>
         </View>
-        <View style={styles.headerBadge}>
-          <Ionicons name="sparkles" size={18} color="#A7A5FF" />
-          <Text style={styles.headerBadgeText}>Week 9</Text>
-        </View>
       </View>
 
       <View style={styles.statsGrid}>
@@ -194,7 +190,6 @@ export default function FoodScreen() {
       <View style={styles.actionPanel}>
         <View style={styles.actionCopy}>
           <Text style={styles.actionTitle}>Add food from a photo</Text>
-          <Text style={styles.actionText}>Choose or take a meal photo. The backend asks ChatGPT for calories and macros.</Text>
         </View>
         <View style={styles.actionButtons}>
           <TouchableOpacity style={styles.iconButton} onPress={() => pickFoodPhoto('library')} disabled={isAnalyzing}>
